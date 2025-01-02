@@ -4,7 +4,7 @@ const socketIo = require('socket.io');
 const setupSocket = (server) => {
     const io = socketIo(server, {
         cors: {
-            origin: "*", // 필요한 경우 허용할 도메인으로 변경
+            origin: "*", // 허용할 도메인
             methods: ["GET", "POST"],
         },
     });

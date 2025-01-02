@@ -1,66 +1,80 @@
 const express = require('express');
-const fs = require('fs');
-const path = require('path');
 const router = express.Router();
 
-// data path
-const dataFilePath = path.join(__dirname, '/data/resources.json');
+// 임시 DB
+let database = [
+    {
+        "id":1,
+        "content":"content1"
+    }
+];
 
-
-// data(JSON 파일) 관리
-const readData = () => {
-    const data = fs.readFileSync(dataFilePath, 'utf-8');
-    return JSON.parse(data);
-};
 
 const find = (id) =>{
-    const data = readData();
-    for(json in data){
-        if(json==id){
-            return true;
+    id = parseInt(id);
+    for(const json of database){
+        if(json.id===id){
+            return json;
         }
     }
-    return false;
-};
-
-const writeData = (data) => {
-    fs.writeFileSync(dataFilePath, JSON.stringify(data, null, 2), 'utf-8');
+    return null;
 };
 
 
+router.get('/', (req, res) => {
+    res.status(200).json(database);
+});
 
+router.get('/get/:id', (req, res) => {
+    // const targetId = parseInt(req.params.id);
+    // const target = database.find((item) => item.id === targetId);
+    const target = find(req.params.id);
 
-router.get('/get', (req, res) => {
-
-    const data = readData();
-    res.status(200).json(data);
+    if (target==null) {
+        return res.status(400).json({message: 'Resource not found'});
+    }
+    
+    res.status(200).json(database);
 });
 
 
 router.post('/post', (req, res) => {
-    
-    const newResource = req.body;
+    const newData = req.body;
 
-    console.log(find(newResource.id));
+    if(find(newData.id)!=null){
+        return res.status(400).json({message: 'Bad Request'});
+    }
 
-    find(newResource.id) ? res.status(400).json({message: 'Wrong Resource', resource: newResource}):
-    res.status(201).json({ message: 'Resource added', resource: newResource });
+    database.push(newData);
+
+    res.status(201).json({ message: 'Resource added', resource: newData });
 });
 
 router.delete('/delete/:id', (req, res) => {
-    const data = readData();
-    const resourceId = parseInt(req.params.id);
+    const targetId = parseInt(req.params.id); 
+    const target = database.find((item) => item.id === targetId);
 
+    if (!target) {
+        return res.status(400).json({ message: 'No resource to delete' });
+    }
 
-    resourceId==data.id ? res.status(200).json({ message: 'Resource deleted' }) : (res.status(404).json({ message: 'Resource not found' }));
+    database = database.filter((item) => item.id !== targetId); // 새 배열로 교체
+
+    res.status(200).json({ message: 'Resource deleted', resource: target });
+    // res.status(204).send();
 });
 
 router.patch('/patch/:id', (req, res) => {
-    const data = readData();
-    const resourceId = parseInt(req.params.id);
+    const patchData = req.body;
+    const target = find(req.params.id);
 
+    if(target==null || req.params.id!=req.body.id){
+        return res.status(400).json({message: 'Bad request'});
+    }
 
-    res.status(200).json(data);
+    Object.assign(target, patchData); // 기존 데이터에 patchData 병합
+
+    res.status(200).json({ message: 'Resource patched', resource: target });
 });
 
 
