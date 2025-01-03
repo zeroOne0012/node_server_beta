@@ -18,4 +18,4 @@ const io = setupSocket(server);
 
 
 app.get("/", (req, res) => res.send("hello world"));	
-app.listen(port, () => console.log(`On ${port}!`));
+server.listen(port, () => console.log(`On ${port}!`));

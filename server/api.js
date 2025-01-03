@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-// 임시 DB
+// dummy
 let database = [
     {
         "id":1,
@@ -25,7 +25,7 @@ router.get('/', (req, res) => {
     res.status(200).json(database);
 });
 
-router.get('/get/:id', (req, res) => {
+router.get('/:id', (req, res) => {
     // const targetId = parseInt(req.params.id);
     // const target = database.find((item) => item.id === targetId);
     const target = find(req.params.id);
@@ -38,7 +38,7 @@ router.get('/get/:id', (req, res) => {
 });
 
 
-router.post('/post', (req, res) => {
+router.post('/', (req, res) => {
     const newData = req.body;
 
     if(find(newData.id)!=null){
@@ -50,7 +50,7 @@ router.post('/post', (req, res) => {
     res.status(201).json({ message: 'Resource added', resource: newData });
 });
 
-router.delete('/delete/:id', (req, res) => {
+router.delete('/:id', (req, res) => {
     const targetId = parseInt(req.params.id); 
     const target = database.find((item) => item.id === targetId);
 
@@ -64,7 +64,7 @@ router.delete('/delete/:id', (req, res) => {
     // res.status(204).send();
 });
 
-router.patch('/patch/:id', (req, res) => {
+router.patch('/:id', (req, res) => {
     const patchData = req.body;
     const target = find(req.params.id);
 

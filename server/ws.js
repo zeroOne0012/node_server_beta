@@ -1,31 +1,30 @@
-const socketIo = require('socket.io');
+const SocketIO = require("socket.io");
 
-// Socket.IO 서버 설정 함수
-const setupSocket = (server) => {
-    const io = socketIo(server, {
-        cors: {
-            origin: "*", // 허용할 도메인
-            methods: ["GET", "POST"],
-        },
+log=[]
+
+module.exports = (server) => {
+  const io = SocketIO(server, { path: "/socket.io" });
+  io.on("connection", (socket) => {
+
+    // connect
+    console.log("Client connected:", socket.id);
+
+    // disconnect
+    socket.on('disconnect', function(){
+        console.log('Client disconnected');
     });
 
-    // 클라이언트 연결 처리
-    io.on('connection', (socket) => {
-        console.log('새 클라이언트 연결됨:', socket.id);
-
-        // 메시지 수신 및 응답 예제
-        socket.on('message', (data) => {
-            console.log('클라이언트 메시지:', data);
-            socket.emit('response', `서버로부터 응답: ${data}`);
-        });
-
-        // 연결 종료 처리
-        socket.on('disconnect', () => {
-            console.log('클라이언트 연결 종료:', socket.id);
-        });
+    // error
+    socket.on('error', (error) => {
+        console.error(error);
+     });
+    
+    // reply
+    socket.on("message", (msg) => {
+        const parsedMsg = JSON.parse(msg);
+        socket.emit("message", {message: parsedMsg.msg});
     });
-
-    return io;
+    
+  });
+  
 };
-
-module.exports = setupSocket;
