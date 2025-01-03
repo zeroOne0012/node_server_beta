@@ -1,80 +1,109 @@
 const express = require('express');
 const router = express.Router();
 
-// dummy
-let database = [
-    {
-        "id":1,
-        "content":"content1"
+const { Client } = require("pg");
+require('dotenv').config();
+const client = new Client({
+    user: process.env.DB_USER,
+    host: process.env.DB_HOST,
+    database: process.env.DB_NAME,
+    password: process.env.DB_PASSWORD,
+    port: process.env.DB_PORT,
+});
+client.connect();
+
+router.get('/', async (req, res) => {
+    console.log("DEBUG");
+    try{
+        const query = `
+        SELECT *
+        FROM USERS;
+        `;
+
+        const {rows} = await client.query(query);
+        // console.log(rows);
+        res.status(200).json(rows);
+    }catch(err){
+        console.log(err);
+        res.status(500).send('Server Error');
     }
-];
+});
 
+router.get('/:id', async (req, res) => {
+    try{
+        const {id} = req.params;
+        const query = `
+        SELECT *
+        FROM USERS
+        WHERE USER_ID=$1;
+        `;
 
-const find = (id) =>{
-    id = parseInt(id);
-    for(const json of database){
-        if(json.id===id){
-            return json;
+        const {rows} = await client.query(query, [id]);
+        if(rows.length===0){
+            return res.status(404).send('Bad Request');
         }
+        res.status(200).json(rows);
+    }catch(err){
+        console.log(err);
+        res.status(500).send('Server Error');
     }
-    return null;
-};
-
-
-router.get('/', (req, res) => {
-    res.status(200).json(database);
-});
-
-router.get('/:id', (req, res) => {
-    // const targetId = parseInt(req.params.id);
-    // const target = database.find((item) => item.id === targetId);
-    const target = find(req.params.id);
-
-    if (target==null) {
-        return res.status(400).json({message: 'Resource not found'});
-    }
-    
-    res.status(200).json(database);
 });
 
 
-router.post('/', (req, res) => {
-    const newData = req.body;
+router.post('/', async (req, res) => {
+    try{
+        const { username, password } = req.body;
+        const query=`
+        INSERT INTO USERS (USERNAME, PASSWORD)
+        VALUES($1, $2);
+        `;
 
-    if(find(newData.id)!=null){
-        return res.status(400).json({message: 'Bad Request'});
+        const result = await client.query(query, [username, password]);
+        res.status(201).send({message:result.rows[0].id});
+    }catch(err){
+        console.log(err);
+        res.status(500).send('Server Error');
     }
-
-    database.push(newData);
-
-    res.status(201).json({ message: 'Resource added', resource: newData });
 });
 
-router.delete('/:id', (req, res) => {
-    const targetId = parseInt(req.params.id); 
-    const target = database.find((item) => item.id === targetId);
+router.delete('/:id', async (req, res) => {
+    try{
+        const {id} = req.params;
+        const query = `
+        DELETE FROM USERS
+        WHERE USER_ID=$1 returning *;
+        `;
+        const {rows} = await client.query(query, [id]);
 
-    if (!target) {
-        return res.status(400).json({ message: 'No resource to delete' });
+        if (rows.length === 0) {
+            return res.status(404).send('Bad Request');
+        }
+        res.status(200).json(rows[0]);
+    }catch(err){
+        console.log(err);
+        res.status(500).send('Server Error');
     }
-
-    database = database.filter((item) => item.id !== targetId); // 새 배열로 교체
-
-    res.status(200).json({ message: 'Resource deleted', resource: target });
-    // res.status(204).send();
 });
 
-router.patch('/:id', (req, res) => {
-    const patchData = req.body;
-    const target = find(req.params.id);
+router.patch('/:id', async (req, res) => {
+    try{
+        const {id} = req.params;
+        const { username, password } = req.body;
+        const query = `
+        UPDATE USERS
+        SET USERNAME = $1, PASSWORD = $2
+        WHERE USER_ID=$3 returning *;
+        `;
+        const {rows} = await client.query(query, [username, password, id]);
 
-    if(target==null || req.params.id!=req.body.id){
-        return res.status(400).json({message: 'Bad request'});
+        if (rows.length === 0) {
+            return res.status(404).send('Bad Request');
+        }
+        res.status(200).json(rows[0]);
+    }catch(err){
+        console.log(err);
+        res.status(500).send('Server Error');
     }
-
-    Object.assign(target, patchData); // 기존 데이터에 patchData 병합
-
-    res.status(200).json({ message: 'Resource patched', resource: target });
 });
 
 
