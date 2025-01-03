@@ -42,7 +42,7 @@ router.get('/:id', async (req, res) => {
         if(rows.length===0){
             return res.status(404).send('Bad Request');
         }
-        res.status(200).json(rows);
+        res.status(200).json(rows[0]);
     }catch(err){
         console.log(err);
         res.status(500).send('Server Error');
@@ -55,11 +55,11 @@ router.post('/', async (req, res) => {
         const { username, password } = req.body;
         const query=`
         INSERT INTO USERS (USERNAME, PASSWORD)
-        VALUES($1, $2);
+        VALUES($1, $2) returning *;
         `;
 
-        const result = await client.query(query, [username, password]);
-        res.status(201).send({message:result.rows[0].id});
+        const {rows} = await client.query(query, [username, password]);
+        res.status(201).json(rows[0]);
     }catch(err){
         console.log(err);
         res.status(500).send('Server Error');
