@@ -1,9 +1,13 @@
 const express = require('express');
 const app = express();
 const port = 8000;
-app.use(express.json());
+const cors = require('cors');
 const http = require('http');
 const setupSocket = require('./server/ws');
+
+// middle ware
+app.use(cors());
+app.use(express.json());
 
 
 // api server
@@ -16,6 +20,5 @@ const server = http.createServer(app);
 const io = setupSocket(server);
 
 
-
-app.get("/", (req, res) => res.send("hello world"));	
+// app.get("/", (req, res) => res.send("hello world"));	
 server.listen(port, () => console.log(`On ${port}!`));
