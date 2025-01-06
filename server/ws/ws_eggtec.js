@@ -61,4 +61,16 @@ module.exports = (server) => {
     });
 
     ['CAM1', 'CAM2', 'Encorder', 'Analysis'].forEach(namespace => setupNamespace(serverIO, namespace));
+
+
+    process.stdin.on('data', (data) => {
+        const input = data.toString().trim();
+        console.log(`Server Input: ${input}`);
+        if (input === 'exit') {
+            console.log('Server shutting down...');
+            process.exit();
+        }
+        serverIO.of('/room1').emit('message', { message: `Server says: ${input}` });
+    });
+
 };
