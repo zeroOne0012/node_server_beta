@@ -1,0 +1,43 @@
+//user
+
+GET
+localhost:8000/user
+
+GET
+localhost:8000/user/1
+
+POST
+localhost:8000/user
+{
+    "username" : "youngil",
+    "password" : "0101"
+}
+
+DELETE
+localhost:8000/user/1
+
+PATCH
+localhost:8000/user/1
+{
+    "username" : "youngil",
+    "password" : "0101"
+}
+
+//chat
+
+GET
+localhost:8000/chat/1
+
+DELETE
+localhost:8000/chat/1
+
+
+
+//websocket (io)
+
+ws://localhost:8000?userid=1&chatid=1
+
+{
+    "userid": 1,
+    "msg": "hi"
+}
