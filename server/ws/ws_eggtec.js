@@ -15,44 +15,12 @@ module.exports = (server) => {
         },
     });
 
+    // room 상태 구독
+    const roomStateListen = serverIO.of('/roomState');
+
+    // room 상태 변경
     const roomStateUpdate = serverIO.of('/roomStateUpdate');
 
-    roomStateUpdate.on('connection', async (socket) => {
-
-        // connect
-        console.log('admin connected:', socket.id);
-
-        // disconnect
-        socket.on('disconnect', function(){
-            console.log('disconnected');
-        });
-
-        // error
-        socket.on('error', (err) => {
-            console.error(err);
-        });
-
-        // change test
-        socket.on('message', (data) => {
-            try {
-                const { event, roomName, newState } = JSON.parse(data);
-                if (event == 'updateRoomState') {
-                    if (roomName in roomState && [0, 1, 2].includes(newState)) {
-                        roomState[roomName].state = newState;
-                        roomStateListen.to(roomName).emit('message', newState);
-                        socket.emit('message', {changed:newState});
-                    } else {
-                        socket.emit('message', 'Invalid room or state');
-                    }
-                }
-            } catch (error) {
-                socket.emit('message', 'Invalid JSON format');
-            }
-        });
-
-    });
-
-    const roomStateListen = serverIO.of('/roomState');
     roomStateListen.on('connection', async (socket) => {
 
         // connect
@@ -82,6 +50,41 @@ module.exports = (server) => {
             }
         });
 
+
+    });
+
+    roomStateUpdate.on('connection', async (socket) => {
+
+        // connect
+        console.log('admin connected:', socket.id);
+
+        // disconnect
+        socket.on('disconnect', function(){
+            console.log('disconnected');
+        });
+
+        // error
+        socket.on('error', (err) => {
+            console.error(err);
+        });
+
+        // change test
+        socket.on('message', (data) => {
+            try {
+                const { event, roomName, newState } = JSON.parse(data);
+                if (event == 'updateRoomState') {
+                    if (roomName in roomState && [0, 1, 2].includes(newState)) {
+                        roomState[roomName].state = newState;
+                        roomStateListen.to(roomName).emit('message', {message:"State changed", roomName:roomName, newState:newState});
+                        socket.emit('message', {message:"State changed", roomName:roomName, newState:newState});
+                    } else {
+                        socket.emit('message', 'Invalid room or state');
+                    }
+                }
+            } catch (error) {
+                socket.emit('message', 'Invalid JSON format');
+            }
+        });
 
     });
 
