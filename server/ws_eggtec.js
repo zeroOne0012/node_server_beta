@@ -1,5 +1,5 @@
 const SocketIO = require('socket.io');
-const getRoomState = require('./getRoomState')
+const getRoomState = require('./methods/getRoomState')
 const roomState = {
     CAM1: 0,
     CAM2: 0,
