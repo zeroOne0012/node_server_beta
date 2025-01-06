@@ -27,12 +27,12 @@ const options = {
 
 const setupSocket = require('./server/ws/ws_eggtec');
 
-// // ws server(+api server) (https)
-// const https = require('https');
-// const https_server = https.createServer(options, app);
-// https_server.listen(port, () => console.log(`On ${port}!`));
-// // wss://localhost:8000/room1
-// const io = setupSocket(https_server);
+// ws server(+api server) (https)
+const https = require('https');
+const https_server = https.createServer(options, app);
+https_server.listen(port, () => console.log(`On ${port}!`));
+// wss://localhost:8000/room1
+const io = setupSocket(https_server);
 
 
 // ws server(+api server) (http)
