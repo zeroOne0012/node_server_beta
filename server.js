@@ -19,7 +19,7 @@ app.use('/chat', chat_api);
 // ws server
 const http = require('http');
 const server = http.createServer(app);
-const setupSocket = require('./server/ws');
+const setupSocket = require('./server/ws_eggtec');
 const io = setupSocket(server);
 
 
