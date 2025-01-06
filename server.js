@@ -30,7 +30,7 @@ const setupSocket = require('./server/ws/ws_eggtec');
 // ws server(+api server) (https)
 const https = require('https');
 const https_server = https.createServer(options, app);
-https_server.listen(port, () => console.log(`On ${port}!`));
+https_server.listen(8001, () => console.log(`On ${8001}!`));
 // wss://localhost:8000/room1
 const io = setupSocket(https_server);
 
@@ -38,7 +38,7 @@ const io = setupSocket(https_server);
 // ws server(+api server) (http)
 const http = require('http');
 const http_server = http.createServer(app); // no options !!
-http_server.listen(8001, () => console.log(`On 8081!`));
+http_server.listen(port, () => console.log(`On ${port}!`));
 // ws://localhost:8001/room1
 const http_io = setupSocket(http_server);
 
@@ -47,4 +47,4 @@ const http_io = setupSocket(http_server);
 // app.get("/", (req, res) => res.send("hello world"));	
 
 
-// process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
