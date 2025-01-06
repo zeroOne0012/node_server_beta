@@ -37,7 +37,7 @@ module.exports = (server) => {
         // error
         socket.on('error', (err) => {
             console.error(err);
-            });
+        });
 
         // room state reply
         socket.on('message', async (msg) => {
@@ -81,8 +81,8 @@ module.exports = (server) => {
                         socket.emit('message', 'Invalid room or state');
                     }
                 }
-            } catch (error) {
-                socket.emit('message', 'Invalid JSON format');
+            } catch (err) {
+                socket.emit('message', err);
             }
         });
 
