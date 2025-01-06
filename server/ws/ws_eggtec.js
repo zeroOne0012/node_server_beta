@@ -62,15 +62,22 @@ module.exports = (server) => {
 
     ['CAM1', 'CAM2', 'Encorder', 'Analysis'].forEach(namespace => setupNamespace(serverIO, namespace));
 
-
-    process.stdin.on('data', (data) => {
-        const input = data.toString().trim();
-        console.log(`Server Input: ${input}`);
-        if (input === 'exit') {
-            console.log('Server shutting down...');
-            process.exit();
+    // 서버 콘솔 입력으로 상태 변경 테스트; input ex) CAM1 1
+    process.stdin.on('data', (data) => { 
+        const input = data.toString().trim(); 
+        const inputs = input.split(' ');
+        const updateNsp = inputs[0];
+        const newState = parseInt(inputs[1]);
+        if(updateNsp in roomNum && newState in [-1, 0, 1]){
+            roomState[updateNsp] = newState;
+            serverIO.of(`/${roomNum[updateNsp]}`).emit('message', {state: newState, message: getRoomState(updateNsp, newState) });
+            console.log(`State changed! ${updateNsp}: ${newState}`);
+        }else{
+            console.log('Invalid input');
         }
-        serverIO.of('/room1').emit('message', { message: `Server says: ${input}` });
     });
 
 };
+
+
+// const [letter, numStr] = input.trim().split(/\s+/);  // 정규표현식 긴 공백
