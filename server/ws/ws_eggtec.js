@@ -45,11 +45,28 @@ function setupNamespace(serverIO, namespace) {
         socket.on('message', async (msg) => {
             try {
                 const { message } = JSON.parse(msg);
-                socket.emit('message', { message });
+                nsp.emit('message', { message });
             } catch (err) {
                 socket.emit('message', 'Invalid message format');
             }
         });
+
+        // custom event test
+        socket.on('msg', async (msg) => {
+            try {
+                const { message } = JSON.parse(msg);
+                nsp.emit('msg', { message });
+            } catch (err) {
+                socket.emit('msg', 'Invalid message format');
+            }
+        });
+
+        // image broadcast test
+        socket.on('send_image', (data) => {
+            console.log(`Received image in ${namespace}`);
+            nsp.emit('receive_image', data);  // 모든 클라이언트에게 전송
+        });
+
     });
 }
 
