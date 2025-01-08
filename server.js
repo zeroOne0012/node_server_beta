@@ -2,12 +2,18 @@ const express = require('express');
 const app = express();
 const port = 8000;
 const cors = require('cors');
+const bodyParser = require("body-parser");
 
 
 // middle ware
-app.use(cors());
+app.use(cors('*'));
 app.use(express.json());
-
+app.use(bodyParser.json());
+app.use(
+  bodyParser.urlencoded({
+    extended: true,
+  })
+);
 
 // api server
 const user_api = require('./server/api/user');

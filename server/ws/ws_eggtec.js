@@ -65,6 +65,7 @@ function setupNamespace(serverIO, namespace) {
         socket.on('send_image', (data) => {
             console.log(`Received image in ${namespace}`);
             nsp.emit('receive_image', data);  // 모든 클라이언트에게 전송
+            console.log('이미지 보냄');
         });
 
     });
